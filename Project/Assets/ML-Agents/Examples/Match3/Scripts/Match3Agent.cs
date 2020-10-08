@@ -44,7 +44,8 @@ namespace Unity.MLAgentsExamples
         {
             base.OnEpisodeBegin();
 
-            Board.InitSettled();
+            //Board.InitSettled();
+            Board.InitRandom();
             m_CurrentState = State.FindMatches;
             m_TimeUntilMove = MoveTime;
             m_MovesMade = 0;
@@ -52,49 +53,49 @@ namespace Unity.MLAgentsExamples
 
         private void FixedUpdate()
         {
-            if (Academy.Instance.IsCommunicatorOn)
+            //if (Academy.Instance.IsCommunicatorOn)
             {
                 FastUpdate();
             }
-            else
-            {
-                AnimatedUpdate();
-            }
+            // else
+            // {
+            //     AnimatedUpdate();
+            // }
 
             // We can't use the normal MaxSteps system to decide when to end an episode,
             // since different agents will make moves at different frequencies (depending on the number of
             // chained moves). So track a number of moves per Agent and manually interrupt the episode.
-            if (m_MovesMade >= MaxMoves)
-            {
-                EpisodeInterrupted();
-            }
+            // if (m_MovesMade >= MaxMoves)
+            // {
+            //     EpisodeInterrupted();
+            // }
         }
 
         void FastUpdate()
         {
-            while (true)
-            {
-                var hasMatched = Board.MarkMatchedCells();
-                if (!hasMatched)
-                {
-                    break;
-                }
-                var numMatched = Board.ClearMatchedCells();
-                AddReward(k_RewardMultiplier * numMatched);
-                Board.DropCells();
-                Board.FillFromAbove();
-            }
-
-            while (true)
-            {
-                // Shuffle the board until we have a valid move.
-                bool hasMoves = HasValidMoves();
-                if (hasMoves)
-                {
-                    break;
-                }
-                Board.InitSettled();
-            }
+            // while (true)
+            // {
+            //     var hasMatched = Board.MarkMatchedCells();
+            //     if (!hasMatched)
+            //     {
+            //         break;
+            //     }
+            //     var numMatched = Board.ClearMatchedCells();
+            //     AddReward(k_RewardMultiplier * numMatched);
+            //     Board.DropCells();
+            //     Board.FillFromAbove();
+            // }
+            //
+            // while (true)
+            // {
+            //     // Shuffle the board until we have a valid move.
+            //     bool hasMoves = HasValidMoves();
+            //     if (hasMoves)
+            //     {
+            //         break;
+            //     }
+            //     Board.InitSettled();
+            // }
             RequestDecision();
             m_MovesMade++;
         }

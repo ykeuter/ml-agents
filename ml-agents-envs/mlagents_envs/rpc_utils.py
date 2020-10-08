@@ -215,6 +215,22 @@ def _process_vector_observation(
     _raise_on_nan_and_inf(np_obs, "observations")
     return np_obs
 
+def un_one_hot(array_in):
+    shape_out = list(array_in.shape)[:-1]
+    array_out = np.zeros(shape_out, dtype=np.float32)
+    num_channels = array_in.shape[-1]
+    for i in range(num_channels):
+        array_out += float(i) * array_in[..., i]
+        #array_out += array_in[..., i]
+    return array_out
+    #return np.argmax(array_in, axis=2)
+
+def un_one_hot_list(array_in, num_items):
+    array_out = [0] * (len(array_in) // num_items)
+    for i in range(len(array_in)):
+        array_out[i // num_items] += array_in[i] * (i % num_items)
+    return array_out
+
 
 @timed
 def steps_from_proto(
@@ -256,6 +272,29 @@ def steps_from_proto(
                     obs_index, obs_shape, terminal_agent_info_list
                 )
             )
+
+    #print(f"len(decision_obs_list) = {len(decision_obs_list)}")
+    #print(f"decision_obs_list[0].shape = {decision_obs_list[0].shape}")
+    #print(f"decision_obs_list[0] = {decision_obs_list[0]}")
+    if (decision_obs_list[0].shape[0] >= 2):
+        obs0 =  decision_obs_list[0][0, ...]
+        obs1 = decision_obs_list[0][1, ...]
+        print(f"obs0.shape = {obs0.shape}")
+        #print(f"obs0 = {obs0}")
+        print(f"un_one_hot(obs0) = \n{un_one_hot(obs0)}")
+        print(f"obs1.shape = {obs1.shape}")
+        #print(f"obs1 = {obs1}")
+        print(f"un_one_hot(obs1) = \n{un_one_hot(obs1)}")
+    else:
+        raw =decision_obs_list[0][0]
+        decoded = un_one_hot_list(raw,6)
+        print(decoded)
+
+    # try:
+    #     for i, obs in enumerate(decision_obs_list):
+    #         print( (i, un_one_hot(obs) ))
+    # except:
+    #     pass
     decision_rewards = np.array(
         [agent_info.reward for agent_info in decision_agent_info_list], dtype=np.float32
     )

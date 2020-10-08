@@ -27,17 +27,17 @@ namespace Unity.MLAgentsExamples
 
         public override bool MakeMove(Move move)
         {
-            if (!IsMoveValid(move))
+            //if (!IsMoveValid(move))
             {
                 return false;
             }
-            var originalValue = m_Cells[move.Column, move.Row];
-            var (otherRow, otherCol) = move.OtherCell();
-            var destinationValue = m_Cells[otherCol, otherRow];
-
-            m_Cells[move.Column, move.Row] = destinationValue;
-            m_Cells[otherCol, otherRow] = originalValue;
-            return true;
+            // var originalValue = m_Cells[move.Column, move.Row];
+            // var (otherRow, otherCol) = move.OtherCell();
+            // var destinationValue = m_Cells[otherCol, otherRow];
+            //
+            // m_Cells[move.Column, move.Row] = destinationValue;
+            // m_Cells[otherCol, otherRow] = originalValue;
+            // return true;
         }
 
         public override int GetCellType(int row, int col)

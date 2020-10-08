@@ -179,6 +179,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Match3VisualObs (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 3019509691567202678, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aaa471bd5e2014848a66917476671aed, type: 3}
 --- !u!1 &327661542
@@ -344,6 +349,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Match3Heuristic (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 3508723250774301855, guid: 2fafdcd0587684641b03b11f04454f1b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3508723250774301920, guid: 2fafdcd0587684641b03b11f04454f1b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -412,6 +422,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Match3Heuristic
+      objectReference: {fileID: 0}
+    - target: {fileID: 3508723250774301855, guid: 2fafdcd0587684641b03b11f04454f1b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3508723250774301920, guid: 2fafdcd0587684641b03b11f04454f1b,
         type: 3}
@@ -540,7 +555,7 @@ PrefabInstance:
     - target: {fileID: 2118285883905619929, guid: 6944ca02359f5427aa13c8551236a824,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6944ca02359f5427aa13c8551236a824, type: 3}
@@ -609,7 +624,37 @@ PrefabInstance:
     - target: {fileID: 3019509691567202678, guid: aaa471bd5e2014848a66917476671aed,
         type: 3}
       propertyPath: m_Name
-      value: Match3VisualObs (1)
+      value: Uncompressed
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007776, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: RandomSeed
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007776, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: Rows
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007776, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: Columns
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007779, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007781, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: MaxMoves
+      value: 500000000
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007783, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: ObservationType
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aaa471bd5e2014848a66917476671aed, type: 3}
@@ -683,7 +728,7 @@ PrefabInstance:
     - target: {fileID: 2118285883905619929, guid: 6944ca02359f5427aa13c8551236a824,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6944ca02359f5427aa13c8551236a824, type: 3}
@@ -698,6 +743,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Match3Heuristic (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3508723250774301855, guid: 2fafdcd0587684641b03b11f04454f1b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3508723250774301920, guid: 2fafdcd0587684641b03b11f04454f1b,
         type: 3}
@@ -767,6 +817,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Match3Heuristic (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3508723250774301855, guid: 2fafdcd0587684641b03b11f04454f1b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3508723250774301920, guid: 2fafdcd0587684641b03b11f04454f1b,
         type: 3}
@@ -895,7 +950,7 @@ PrefabInstance:
     - target: {fileID: 2118285883905619929, guid: 6944ca02359f5427aa13c8551236a824,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6944ca02359f5427aa13c8551236a824, type: 3}
@@ -966,6 +1021,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Match3VisualObs (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 3019509691567202678, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aaa471bd5e2014848a66917476671aed, type: 3}
 --- !u!1001 &2118285882709515366
@@ -1035,10 +1095,40 @@ PrefabInstance:
       propertyPath: m_Name
       value: Match3VectorObs
       objectReference: {fileID: 0}
+    - target: {fileID: 2118285883905619929, guid: 6944ca02359f5427aa13c8551236a824,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2118285884327540680, guid: 6944ca02359f5427aa13c8551236a824,
         type: 3}
       propertyPath: UseVectorObservations
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2118285884327540682, guid: 6944ca02359f5427aa13c8551236a824,
+        type: 3}
+      propertyPath: MaxMoves
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 2118285884327540684, guid: 6944ca02359f5427aa13c8551236a824,
+        type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2118285884327540687, guid: 6944ca02359f5427aa13c8551236a824,
+        type: 3}
+      propertyPath: Rows
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2118285884327540687, guid: 6944ca02359f5427aa13c8551236a824,
+        type: 3}
+      propertyPath: Columns
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2118285884327540687, guid: 6944ca02359f5427aa13c8551236a824,
+        type: 3}
+      propertyPath: RandomSeed
+      value: 42
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6944ca02359f5427aa13c8551236a824, type: 3}
@@ -1107,7 +1197,52 @@ PrefabInstance:
     - target: {fileID: 3019509691567202678, guid: aaa471bd5e2014848a66917476671aed,
         type: 3}
       propertyPath: m_Name
-      value: Match3VisualObs
+      value: Compressed
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509691567202678, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007776, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: RandomSeed
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007776, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: Rows
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007776, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: Columns
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007779, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: m_BehaviorType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007779, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007781, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: MaxMoves
+      value: 500000000
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007783, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: ObservationType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3019509692332007790, guid: aaa471bd5e2014848a66917476671aed,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aaa471bd5e2014848a66917476671aed, type: 3}
