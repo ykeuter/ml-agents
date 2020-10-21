@@ -135,10 +135,8 @@ class TorchPPOOptimizer(TorchOptimizer):
 
         vec_obs = [ModelUtils.list_to_tensor(batch["vector_obs"])]
         act_masks = ModelUtils.list_to_tensor(batch["action_mask"])
-        if self.policy.use_continuous_act:
-            actions = ModelUtils.list_to_tensor(batch["actions"]).unsqueeze(-1)
-        else:
-            actions = ModelUtils.list_to_tensor(batch["actions"], dtype=torch.long)
+        actions = ModelUtils.list_to_tensor(batch["actions"]).unsqueeze(-1)
+        #discrete_actions = ModelUtils.list_to_tensor(batch["actions"][self.policy.continuous_act_size:], dtype=torch.long)
 
         memories = [
             ModelUtils.list_to_tensor(batch["memory"][i])
@@ -156,6 +154,7 @@ class TorchPPOOptimizer(TorchOptimizer):
                 vis_obs.append(vis_ob)
         else:
             vis_obs = []
+
         log_probs, entropy, values = self.policy.evaluate_actions(
             vec_obs,
             vis_obs,

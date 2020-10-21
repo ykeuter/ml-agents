@@ -72,8 +72,7 @@ class TorchPolicy(Policy):
         self.actor_critic = ac_class(
             observation_shapes=self.behavior_spec.observation_shapes,
             network_settings=trainer_settings.network_settings,
-            act_type=behavior_spec.action_type,
-            act_size=self.act_size,
+            action_spec=self.behavior_spec.action_spec,
             stream_names=reward_signal_names,
             conditional_sigma=self.condition_sigma_on_obs,
             tanh_squash=tanh_squash,
@@ -98,12 +97,12 @@ class TorchPolicy(Policy):
     ) -> Tuple[SplitObservations, np.ndarray]:
         vec_vis_obs = SplitObservations.from_observations(decision_requests.obs)
         mask = None
-        if not self.use_continuous_act:
-            mask = torch.ones([len(decision_requests), np.sum(self.act_size)])
-            if decision_requests.action_mask is not None:
-                mask = torch.as_tensor(
-                    1 - np.concatenate(decision_requests.action_mask, axis=1)
-                )
+        if self.discrete_act_size > 0:
+            mask = torch.ones([len(decision_requests), np.sum(self.discrete_act_branches)])
+        if decision_requests.action_mask is not None:
+            mask = torch.as_tensor(
+                1 - np.concatenate(decision_requests.action_mask, axis=1)
+            )
         return vec_vis_obs, mask
 
     def update_normalization(self, vector_obs: np.ndarray) -> None:
@@ -124,37 +123,22 @@ class TorchPolicy(Policy):
         memories: Optional[torch.Tensor] = None,
         seq_len: int = 1,
         all_log_probs: bool = False,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Tuple[
+        torch.Tensor, torch.Tensor, torch.Tensor, Dict[str, torch.Tensor], torch.Tensor
+    ]:
         """
-        :param vec_obs: List of vector observations.
-        :param vis_obs: List of visual observations.
-        :param masks: Loss masks for RNN, else None.
-        :param memories: Input memories when using RNN, else None.
-        :param seq_len: Sequence length when using RNN.
         :param all_log_probs: Returns (for discrete actions) a tensor of log probs, one for each action.
-        :return: Tuple of actions, log probabilities (dependent on all_log_probs), entropies, and
-            output memories, all as Torch Tensors.
         """
-        if memories is None:
-            dists, memories = self.actor_critic.get_dists(
-                vec_obs, vis_obs, masks, memories, seq_len
-            )
-        else:
-            # If we're using LSTM. we need to execute the values to get the critic memories
-            dists, _, memories = self.actor_critic.get_dist_and_value(
-                vec_obs, vis_obs, masks, memories, seq_len
-            )
-        action_list = self.actor_critic.sample_action(dists)
-        log_probs, entropies, all_logs = ModelUtils.get_probs_and_entropy(
-            action_list, dists
+        actions, log_probs, entropies, value_heads, memories = self.actor_critic.get_action_stats_and_value(
+            vec_obs, vis_obs, masks, memories, seq_len
         )
-        actions = torch.stack(action_list, dim=-1)
-        if self.use_continuous_act:
-            actions = actions[:, :, 0]
-        else:
-            actions = actions[:, 0, :]
-
-        return (actions, all_logs if all_log_probs else log_probs, entropies, memories)
+        return (
+            actions,
+            log_probs,
+            entropies,
+            value_heads,
+            memories,
+        )
 
     def evaluate_actions(
         self,
@@ -165,12 +149,10 @@ class TorchPolicy(Policy):
         memories: Optional[torch.Tensor] = None,
         seq_len: int = 1,
     ) -> Tuple[torch.Tensor, torch.Tensor, Dict[str, torch.Tensor]]:
-        dists, value_heads, _ = self.actor_critic.get_dist_and_value(
-            vec_obs, vis_obs, masks, memories, seq_len
-        )
-        action_list = [actions[..., i] for i in range(actions.shape[-1])]
-        log_probs, entropies, _ = ModelUtils.get_probs_and_entropy(action_list, dists)
 
+        log_probs, entropies, value_heads = self.actor_critic.get_stats_and_value(
+            vec_obs, vis_obs, actions, masks, memories, seq_len
+        )
         return log_probs, entropies, value_heads
 
     @timed
@@ -194,14 +176,18 @@ class TorchPolicy(Policy):
 
         run_out = {}
         with torch.no_grad():
-            action, log_probs, entropy, memories = self.sample_actions(
+            action, log_probs, entropy, value_heads, memories = self.sample_actions(
                 vec_obs, vis_obs, masks=masks, memories=memories
             )
-        run_out["action"] = ModelUtils.to_numpy(action)
-        run_out["pre_action"] = ModelUtils.to_numpy(action)
         # Todo - make pre_action difference
+        run_out["pre_action"] = ModelUtils.to_numpy(action)
+        run_out["action"] = ModelUtils.to_numpy(action)
         run_out["log_probs"] = ModelUtils.to_numpy(log_probs)
         run_out["entropy"] = ModelUtils.to_numpy(entropy)
+        run_out["value_heads"] = {
+            name: ModelUtils.to_numpy(t) for name, t in value_heads.items()
+        }
+        run_out["value"] = np.mean(list(run_out["value_heads"].values()), 0)
         run_out["learning_rate"] = 0.0
         if self.use_recurrent:
             run_out["memory_out"] = ModelUtils.to_numpy(memories).squeeze(0)
