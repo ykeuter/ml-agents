@@ -52,7 +52,9 @@ class ModelSerializer:
             for shape in self.policy.behavior_spec.observation_shapes
             if len(shape) == 3
         ]
-        dummy_masks = torch.ones(batch_dim + [sum(self.policy.actor_critic.discrete_act_branches)])
+        dummy_masks = torch.ones(
+            batch_dim + [sum(self.policy.actor_critic.discrete_act_branches)]
+        )
         dummy_memories = torch.zeros(
             batch_dim + seq_len_dim + [self.policy.export_memory_size]
         )
@@ -67,10 +69,14 @@ class ModelSerializer:
 
         self.output_names = [
             "action",
+            "continuous_actions",
+            "discrete_actions",
             "version_number",
             "memory_size",
             "is_continuous_control",
             "action_output_shape",
+            "continuous_action_output_shape",
+            "discrete_action_output_shape",
         ]
 
         self.dynamic_axes = {name: {0: "batch"} for name in self.input_names}

@@ -143,7 +143,6 @@ class CategoricalDistInstance(DiscreteDistInstance):
         return action[:, 0, :].type(torch.float)
 
 
-
 class GaussianDistribution(nn.Module):
     def __init__(
         self,
@@ -180,7 +179,7 @@ class GaussianDistribution(nn.Module):
         if self.conditional_sigma:
             log_sigma = torch.clamp(self.log_sigma(inputs), min=-20, max=2)
         else:
-            log_sigma = self.log_sigma.expand(inputs.shape[0], -1)
+            log_sigma = torch.cat([self.log_sigma] * inputs.shape[0], axis=0)
         if self.tanh_squash:
             return [TanhGaussianDistInstance(mu, torch.exp(log_sigma))]
         else:
