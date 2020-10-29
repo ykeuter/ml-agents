@@ -235,12 +235,12 @@ class SimpleActor(nn.Module, Actor):
         self.discrete_act_branches = action_spec.discrete_action_branches
         self.continuous_act_size = action_spec.continuous_action_size
         self.version_number = torch.nn.Parameter(torch.Tensor([2.0]))
-        self.act_size_vector = torch.nn.Parameter(torch.Tensor(action_spec.action_size))
+        self.act_size_vector = torch.nn.Parameter(torch.Tensor([int(action_spec.action_size)]))
         self.continuous_act_size_vector = torch.nn.Parameter(
-            torch.Tensor(action_spec.continuous_action_size)
+            torch.Tensor([int(action_spec.continuous_action_size)])
         )
         self.discrete_act_size_vector = torch.nn.Parameter(
-            torch.Tensor(action_spec.discrete_action_size)
+            torch.Tensor([int(sum(action_spec.discrete_action_branches))])
         )
         self.is_continuous_int = torch.nn.Parameter(
             torch.Tensor([int(self.continuous_act_size > 0)])
