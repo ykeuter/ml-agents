@@ -88,8 +88,8 @@ class ActionModel(nn.Module):
     def get_action_out(self, inputs: torch.Tensor, masks: torch.Tensor) -> torch.Tensor:
         dists = self._get_dists(inputs, masks)
         return (
-            dists[0].exported_model_output(),
-            dists[1].exported_model_output(),
+            dists[0].exported_model_output() if self.continuous_act_size > 0 else None,
+            dists[1].exported_model_output() if self.discrete_act_size > 0 else None,
             torch.cat([dist.exported_model_output() for dist in dists], dim=1),
         )
 
