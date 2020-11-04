@@ -14,13 +14,6 @@ namespace Unity.MLAgents.Inference
     /// </summary>
     internal class BarracudaModelParamLoader
     {
-        enum ModelActionType
-        {
-            Unknown,
-            Discrete,
-            Continuous
-        }
-
         const long k_ApiVersion = 2;
 
         /// <summary>
@@ -100,7 +93,14 @@ namespace Unity.MLAgents.Inference
                 return names.ToArray();
             }
 
-            names.Add(TensorNames.ActionOutput);
+            if (model.HasContinuousOutputs())
+            {
+                names.Add(model.ContinuousOutputName());
+            }
+            if (model.HasDiscreteOutputs())
+            {
+                names.Add(model.DiscreteOutputName());
+            }
 
             var memory = (int)model.GetTensorByName(TensorNames.MemorySize)[0];
             if (memory > 0)
@@ -152,21 +152,13 @@ namespace Unity.MLAgents.Inference
                 return failedModelChecks;
             }
 
-            foreach (var constantName in TensorNames.RequiredConstants)
+            var modelApiVersionTensor = model.GetTensorByName(TensorNames.VersionNumber);
+            if (modelApiVersionTensor == null)
             {
-                var tensor = model.GetTensorByName(constantName);
-                if (tensor == null)
-                {
-                    failedModelChecks.Add($"Required constant \"{constantName}\" was not found in the model file.");
-                    return failedModelChecks;
-                }
+                failedModelChecks.Add($"Required constant \"{TensorNames.VersionNumber}\" was not found in the model file.");
+                return failedModelChecks;
             }
-
-            var modelApiVersion = (int)model.GetTensorByName(TensorNames.VersionNumber)[0];
-            var memorySize = (int)model.GetTensorByName(TensorNames.MemorySize)[0];
-            var isContinuousInt = (int)model.GetTensorByName(TensorNames.IsContinuousControl)[0];
-            var isContinuous = GetActionType(isContinuousInt);
-            var actionSize = (int)model.GetTensorByName(TensorNames.ActionOutputShape)[0];
+            var modelApiVersion = (int)modelApiVersionTensor[0];
             if (modelApiVersion == -1)
             {
                 failedModelChecks.Add(
@@ -182,19 +174,22 @@ namespace Unity.MLAgents.Inference
                 return failedModelChecks;
             }
 
-            var modelDiscreteActionSize = isContinuous == ModelActionType.Discrete ? actionSize : 0;
-            var modelContinuousActionSize = isContinuous == ModelActionType.Continuous ? actionSize : 0;
+            var memorySizeTensor = model.GetTensorByName(TensorNames.MemorySize);
+            if (memorySizeTensor == null)
+            {
+                failedModelChecks.Add($"Required constant \"{TensorNames.MemorySize}\" was not found in the model file.");
+                return failedModelChecks;
+            }
+            var memorySize = (int)memorySizeTensor[0];
 
             failedModelChecks.AddRange(
                 CheckIntScalarPresenceHelper(new Dictionary<string, int>()
                 {
                     {TensorNames.MemorySize, memorySize},
-                    {TensorNames.IsContinuousControl, isContinuousInt},
-                    {TensorNames.ActionOutputShape, actionSize}
                 })
             );
             failedModelChecks.AddRange(
-                CheckInputTensorPresence(model, brainParameters, memorySize, isContinuous, sensorComponents)
+                CheckInputTensorPresence(model, brainParameters, memorySize, sensorComponents)
             );
             failedModelChecks.AddRange(
                 CheckOutputTensorPresence(model, memorySize))
@@ -203,36 +198,11 @@ namespace Unity.MLAgents.Inference
                 CheckInputTensorShape(model, brainParameters, sensorComponents, observableAttributeTotalSize)
             );
             failedModelChecks.AddRange(
-                CheckOutputTensorShape(model, brainParameters, actuatorComponents, isContinuous, modelContinuousActionSize, modelDiscreteActionSize)
+                CheckOutputTensorShape(model, brainParameters, actuatorComponents)
             );
             return failedModelChecks;
         }
 
-        /// <summary>
-        /// Converts the integer value in the model corresponding to the type of control to a
-        /// ModelActionType.
-        /// </summary>
-        /// <param name="isContinuousInt">
-        /// The integer value in the model indicating the type of control
-        /// </param>
-        /// <returns>The equivalent ModelActionType</returns>
-        static ModelActionType GetActionType(int isContinuousInt)
-        {
-            ModelActionType isContinuous;
-            switch (isContinuousInt)
-            {
-                case 0:
-                    isContinuous = ModelActionType.Discrete;
-                    break;
-                case 1:
-                    isContinuous = ModelActionType.Continuous;
-                    break;
-                default:
-                    isContinuous = ModelActionType.Unknown;
-                    break;
-            }
-            return isContinuous;
-        }
 
         /// <summary>
         /// Given a Dictionary of node names to int values, create checks if the values have the
@@ -279,7 +249,6 @@ namespace Unity.MLAgents.Inference
             Model model,
             BrainParameters brainParameters,
             int memory,
-            ModelActionType isContinuous,
             SensorComponent[] sensorComponents
         )
         {
@@ -291,7 +260,7 @@ namespace Unity.MLAgents.Inference
                 (!tensorsNames.Contains(TensorNames.VectorObservationPlaceholder)))
             {
                 failedModelChecks.Add(
-                    "The model does not contain a Vector Observation  Placeholder Input. " +
+                    "The model does not contain a Vector Observation Placeholder Input. " +
                     "You must set the Vector Observation Space Size to 0.");
             }
 
@@ -338,7 +307,7 @@ namespace Unity.MLAgents.Inference
             }
 
             // If the model uses discrete control but does not have an input for action masks
-            if (isContinuous == ModelActionType.Discrete)
+            if (model.HasDiscreteOutputs())
             {
                 if (!tensorsNames.Contains(TensorNames.ActionMaskPlaceholder))
                 {
@@ -364,7 +333,9 @@ namespace Unity.MLAgents.Inference
         {
             var failedModelChecks = new List<string>();
             // If there is no Action Output.
-            if (!model.outputs.Contains(TensorNames.ActionOutput))
+            if (!model.outputs.Contains(TensorNames.ActionOutputDeprecated) &&
+                !model.outputs.Contains(TensorNames.ContinuousActionOutput) &&
+                !model.outputs.Contains(TensorNames.DiscreteActionOutput))
             {
                 failedModelChecks.Add("The model does not contain an Action Output Node.");
             }
@@ -561,6 +532,7 @@ namespace Unity.MLAgents.Inference
             BrainParameters brainParameters, TensorProxy tensorProxy,
             SensorComponent[] sensorComponents, int observableAttributeTotalSize)
         {
+            // TODO: Update this check after intergrating ActionSpec into BrainParameters
             var numberActionsBp = brainParameters.VectorActionSize.Length;
             var numberActionsT = tensorProxy.shape[tensorProxy.shape.Length - 1];
             if (numberActionsBp != numberActionsT)
@@ -598,45 +570,31 @@ namespace Unity.MLAgents.Inference
         static IEnumerable<string> CheckOutputTensorShape(
             Model model,
             BrainParameters brainParameters,
-            ActuatorComponent[] actuatorComponents,
-            ModelActionType isContinuous,
-            int modelContinuousActionSize, int modelSumDiscreteBranchSizes)
+            ActuatorComponent[] actuatorComponents)
         {
             var failedModelChecks = new List<string>();
-            if (isContinuous == ModelActionType.Unknown)
+            // Check the presence of action output shape
+            if (!model.outputs.Contains(TensorNames.ActionOutputShapeDeprecated) &&
+                !model.outputs.Contains(TensorNames.ContinuousActionOutputShape) &&
+                !model.outputs.Contains(TensorNames.DiscreteActionOutputShape))
             {
-                failedModelChecks.Add("Cannot infer type of Control from the provided model.");
+                failedModelChecks.Add("The model does not contain an Action Output Shape Node.");
                 return failedModelChecks;
             }
-            if (isContinuous == ModelActionType.Continuous &&
-                brainParameters.VectorActionSpaceType != SpaceType.Continuous)
-            {
-                failedModelChecks.Add(
-                    "Model has been trained using Continuous Control but the Brain Parameters " +
-                    "suggest Discrete Control.");
-                return failedModelChecks;
-            }
-            if (isContinuous == ModelActionType.Discrete &&
-                brainParameters.VectorActionSpaceType != SpaceType.Discrete)
-            {
-                failedModelChecks.Add(
-                    "Model has been trained using Discrete Control but the Brain Parameters " +
-                    "suggest Continuous Control.");
-                return failedModelChecks;
-            }
-            var tensorTester = new Dictionary<string, Func<BrainParameters, ActuatorComponent[], TensorShape?, int, int, string>>();
 
-            // This will need to change a bit for hybrid action spaces.
-            if (isContinuous == ModelActionType.Continuous)
+            var tensorTester = new Dictionary<string, Func<BrainParameters, ActuatorComponent[], TensorShape?, int, int, string>>();
+            if (model.HasContinuousOutputs())
             {
-                tensorTester[TensorNames.ActionOutput] = CheckContinuousActionOutputShape;
+                tensorTester[model.ContinuousOutputName()] = CheckContinuousActionOutputShape;
             }
-            else
+            if (model.HasDiscreteOutputs())
             {
-                tensorTester[TensorNames.ActionOutput] = CheckDiscreteActionOutputShape;
+                tensorTester[model.DiscreteOutputName()] = CheckDiscreteActionOutputShape;
             }
 
             // If the model expects an output but it is not in this list
+            var modelContinuousActionSize = model.ContinuousOutputSize();
+            var modelSumDiscreteBranchSizes = model.DiscreteOutputSize();
             foreach (var name in model.outputs)
             {
                 if (tensorTester.ContainsKey(name))
