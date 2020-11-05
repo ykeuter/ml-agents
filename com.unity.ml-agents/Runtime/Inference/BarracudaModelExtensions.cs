@@ -39,7 +39,7 @@ namespace Unity.MLAgents.Inference
             if (model.UseDeprecated())
             {
                 return (int)model.GetTensorByName(TensorNames.IsContinuousControlDeprecated)[0] > 0 ?
-                    (int)model.GetTensorByName(TensorNames.ActionOutputDeprecated)[0] : 0;
+                    (int)model.GetTensorByName(TensorNames.ActionOutputShapeDeprecated)[0] : 0;
             }
             else
             {
@@ -87,7 +87,7 @@ namespace Unity.MLAgents.Inference
         }
 
         /// <summary>
-        /// Discrete action output size of the model.
+        /// Discrete action output size of the model. This is equal to the sum of the branch sizes.
         /// </summary>
         /// <param name="model">
         /// The Barracuda engine model for loading static parameters.
@@ -98,7 +98,7 @@ namespace Unity.MLAgents.Inference
             if (model.UseDeprecated())
             {
                 return (int)model.GetTensorByName(TensorNames.IsContinuousControlDeprecated)[0] > 0 ?
-                    0 : (int)model.GetTensorByName(TensorNames.ActionOutputDeprecated)[0];
+                    0 : (int)model.GetTensorByName(TensorNames.ActionOutputShapeDeprecated)[0];
             }
             else
             {
