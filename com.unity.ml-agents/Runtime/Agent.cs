@@ -298,6 +298,12 @@ namespace Unity.MLAgents
         /// This Id will be changed every time the Agent resets.
         int m_EpisodeId;
 
+        public int Id
+        {
+            get => m_EpisodeId;
+            set => m_EpisodeId = value;
+        }
+
         /// Whether or not the Agent has been initialized already
         bool m_Initialized;
 
